@@ -371,24 +371,7 @@
         </div>
         <input  type="text" id="usernameInput" placeholder="Type your name..." style="padding: 10px; font-size: 18px; width: 250px; margin-bottom: 10px; border-radius: 5px; border: none;outline:none;" autocomplete="off">
         <br/>
-                    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
-            <script>
-                var cloudflareCaptchaResponse;
-                window.onloadTurnstileCallback = function () {
-                    turnstile.render('#cloudflare-captcha', {
-                        sitekey: "0x4AAAAAAA_Et20He4UMsyH5",
-                        callback: function(response) {
-                            document.getElementById('cloudflare-captcha').remove();
-                            cloudflareCaptchaResponse=response;
-                            document.getElementById('startButton').classList.remove('disabled');
-                                                    },
-                    });
-                };
-                // if using synchronous loading, will be called once the DOM is ready
-                turnstile.ready(onloadTurnstileCallback);
-            </script>
-            <div id="cloudflare-captcha"></div>
-                <button class="disabled" id="startButton" style="font-weight:bold;padding: 10px 55px; font-size: 24px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px;">Join the game</button>
+                <button id="startButton" style="font-weight:bold;padding: 10px 55px; font-size: 24px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 5px;">Join the game</button>
         <style>
             button.disabled {
                 opacity: 0.5;
@@ -918,14 +901,6 @@
                     return;
                 }
                 
-                                    // Check if the captcha has been completed
-                    if (!cloudflareCaptchaResponse) {
-                        // Alert the user
-                        alert("Please complete the captcha verification before continuing.");
-                        
-                        // Exit the function early
-                        return;
-                    }
                 
                 if(!username) {
                     alert("Please enter a username.");
@@ -947,69 +922,33 @@
             // disable the start button by adding class disabled
             document.getElementById('startButton').classList.add('disabled');
         
-            // Send AJAX request to verify captcha and get token
-            fetch('/fly_captcha.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                    'username': username,
-                    'planeId': selfPlaneId,
-                                            'cloudflareCaptchaResponse': cloudflareCaptchaResponse
-                                    })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    alert(data.message);
-                    return;
-                }
-                // Store the token if needed
-                localStorage.setItem('verifyToken', data.verifyToken);
-                verifyToken=data.verifyToken;
+            // Since captcha is removed, proceed directly with game initialization
+            // Set the username
+            selfUsername = username;
 
-                // Save username to localStorage
-                try {
-                    localStorage.setItem('username', usernameInput.value);
-                    console.log('Username saved to localStorage');
-                } catch (e) {
-                    console.warn('Could not save username to localStorage:', e);
-                }
-                
-                // Set the username if it passed all checks
-                selfUsername = username;
-
-                // Remove the input field from the DOM
-                if (usernameInput.parentNode) {
-                    usernameInput.parentNode.removeChild(usernameInput);
-                }
-
-                // Alternatively, hide it if we might need it later
-                // usernameInput.style.display = 'none';
-                // Log the username
-                console.log('✈️ My username:', selfUsername);
-
-                // all good now show plane selector
-
-                // Hide start screen elements
-                document.querySelector('#startScreen').style.display = 'none';
-
-                // Show plane selection modal
-                document.querySelector('.vehicle-selection-modal').style.display = 'block';
-                
-
-
-            })
-            .catch(error => {
-                console.error('Error:', error);
-
-                // enable the start button by removing class disabled
-                document.getElementById('startButton').classList.remove('disabled');
+            // Save username to localStorage
+            try {
+                localStorage.setItem('username', usernameInput.value);
+                console.log('Username saved to localStorage');
+            } catch (e) {
+                console.warn('Could not save username to localStorage:', e);
+            }
             
-                alert('An error occurred. Please try again.');
-                return;
-            });
+            // Remove the input field from the DOM
+            if (usernameInput.parentNode) {
+                usernameInput.parentNode.removeChild(usernameInput);
+            }
+
+            // Log the username
+            console.log('✈️ My username:', selfUsername);
+
+            // all good now show plane selector
+
+            // Hide start screen elements
+            document.querySelector('#startScreen').style.display = 'none';
+
+            // Show plane selection modal
+            document.querySelector('.vehicle-selection-modal').style.display = 'block';
 
             
         }
